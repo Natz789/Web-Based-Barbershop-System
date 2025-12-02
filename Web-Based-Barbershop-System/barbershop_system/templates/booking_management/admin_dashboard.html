@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Barbershop System{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="margin-top: 40px; margin-bottom: 60px;">
+    <div class="page-header">
+        <h1 class="page-title">Admin Dashboard</h1>
+        <p class="page-subtitle">Manage your barbershop operations</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card stats-card stats-primary">
+                <div class="card-body">
+                    <div class="stats-content">
+                        <i class="fas fa-calendar-check stats-icon"></i>
+                        <div class="stats-info">
+                            <small class="text-muted d-block">Total Bookings</small>
+                            <h2 class="stats-value">{{ total_bookings }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card stats-card stats-warning">
+                <div class="card-body">
+                    <div class="stats-content">
+                        <i class="fas fa-clock stats-icon"></i>
+                        <div class="stats-info">
+                            <small class="text-muted d-block">Pending Bookings</small>
+                            <h2 class="stats-value">{{ pending_bookings }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card stats-card stats-success">
+                <div class="card-body">
+                    <div class="stats-content">
+                        <i class="fas fa-check-circle stats-icon"></i>
+                        <div class="stats-info">
+                            <small class="text-muted d-block">Completed</small>
+                            <h2 class="stats-value">{{ completed_bookings }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card stats-card stats-info">
+                <div class="card-body">
+                    <div class="stats-content">
+                        <i class="fas fa-users stats-icon"></i>
+                        <div class="stats-info">
+                            <small class="text-muted d-block">Active Customers</small>
+                            <h2 class="stats-value">{{ customers_count|default:0 }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Bookings Table -->
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Bookings</h5>
+                <a href="#" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus"></i> Add Booking
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if bookings %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Customer</th>
+                                <th>Service</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Barber</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                                <tr>
+                                    <td>#{{ booking.id }}</td>
+                                    <td>{{ booking.customer.full_name }}</td>
+                                    <td>{{ booking.service.name }}</td>
+                                    <td>{{ booking.booking_date|date:"M d, Y" }}</td>
+                                    <td>{{ booking.booking_time|time:"g:i A" }}</td>
+                                    <td>
+                                        {% if booking.barber %}
+                                            {{ booking.barber.get_full_name }}
+                                        {% else %}
+                                            Any
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if booking.status == 'pending' %}
+                                            <span class="badge badge-warning">Pending</span>
+                                        {% elif booking.status == 'confirmed' %}
+                                            <span class="badge badge-info">Confirmed</span>
+                                        {% elif booking.status == 'completed' %}
+                                            <span class="badge badge-success">Completed</span>
+                                        {% elif booking.status == 'cancelled' %}
+                                            <span class="badge badge-danger">Cancelled</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'booking:booking_detail' booking.id %}"
+                                               class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                                                <a href="{% url 'booking:booking_edit' booking.id %}"
+                                                   class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-danger"
+                                                        onclick="if(confirm('Cancel this booking?')) window.location.href='{% url 'booking:booking_cancel' booking.id %}'">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-times" style="font-size: 64px; color: var(--muted-color); margin-bottom: 20px;"></i>
+                    <h4>No Bookings Yet</h4>
+                    <p class="text-muted">Start by creating your first booking.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
