@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Barbershop System{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/atomic.css' %}">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% block header %}
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">Barbershop System</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarNav" aria-controls="navbarNav"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/services/">Services</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/book/">Book Now</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex">
+                        {% if user.is_authenticated %}
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button">
+                                    <i class="fas fa-user"></i> {{ user.username }}
+                                </button>
+                            </div>
+                        {% else %}
+                            <a href="/auth/login/" class="btn btn-outline-light me-2">Login</a>
+                            <a href="/auth/register/" class="btn btn-primary">Register</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+    {% endblock %}
+
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+    {% block footer %}
+        <footer class="main-footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="footer-section">
+                            <h5>Barbershop System</h5>
+                            <p class="text-muted">
+                                Your trusted barbershop for professional grooming services.
+                                Quality cuts, friendly service, and a great experience every time.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="footer-section">
+                            <h5>Quick Links</h5>
+                            <ul class="footer-links list-unstyled">
+                                <li><a href="/" class="footer-link">Home</a></li>
+                                <li><a href="/services/" class="footer-link">Services</a></li>
+                                <li><a href="/book/" class="footer-link">Book Appointment</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="footer-section">
+                            <h5>Contact Us</h5>
+                            <div class="footer-contact">
+                                <p><i class="fas fa-phone"></i> +1 234 567 8900</p>
+                                <p><i class="fas fa-envelope"></i> info@barbershop.com</p>
+                                <p><i class="fas fa-map-marker-alt"></i> 123 Main St, City</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="footer-section">
+                            <h5>Follow Us</h5>
+                            <div class="social-links">
+                                <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="footer-divider">
+                <div class="footer-copyright text-center">
+                    <p class="mb-0">&copy; 2025 Barbershop System. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    {% endblock %}
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
