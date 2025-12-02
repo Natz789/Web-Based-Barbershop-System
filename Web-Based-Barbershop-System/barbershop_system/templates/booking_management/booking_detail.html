@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Booking Details - Barbershop System{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 60px; margin-bottom: 60px;">
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title">Booking #{{ booking.id }}</h1>
+                <p class="page-subtitle">Booking Details</p>
+            </div>
+            <div>
+                <a href="{% url 'booking:my_bookings' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to My Bookings
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5>Appointment Information</h5>
+                        {% if booking.status == 'pending' %}
+                            <span class="badge badge-warning">Pending</span>
+                        {% elif booking.status == 'confirmed' %}
+                            <span class="badge badge-info">Confirmed</span>
+                        {% elif booking.status == 'completed' %}
+                            <span class="badge badge-success">Completed</span>
+                        {% elif booking.status == 'cancelled' %}
+                            <span class="badge badge-danger">Cancelled</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body" style="padding: 30px;">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Customer:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ booking.customer.full_name }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Email:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ booking.customer.email }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Phone:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ booking.customer.phone_number }}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Service:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ booking.service.name }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Price:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <span style="font-size: 20px; color: var(--success-color); font-weight: bold;">
+                                ${{ booking.service.price }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Duration:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ booking.service.duration_minutes }} minutes
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Barber:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {% if booking.barber %}
+                                {{ booking.barber.get_full_name }}
+                            {% else %}
+                                Any Available Barber
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Date:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ booking.booking_date|date:"l, F d, Y" }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Time:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ booking.booking_time|time:"g:i A" }} - {{ booking.end_time|time:"g:i A" }}
+                        </div>
+                    </div>
+
+                    {% if booking.notes %}
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <strong>Notes:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ booking.notes }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if booking.cancellation_reason %}
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <strong>Cancellation Reason:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                <span class="text-danger">{{ booking.cancellation_reason }}</span>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <hr>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Booked On:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ booking.created_at|date:"F d, Y g:i A" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Actions</h5>
+                </div>
+                <div class="card-body">
+                    {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                        <a href="{% url 'booking:booking_edit' booking.id %}" class="btn btn-primary btn-block mb-2">
+                            <i class="fas fa-edit"></i> Edit Booking
+                        </a>
+                        <a href="{% url 'booking:booking_cancel' booking.id %}" class="btn btn-danger btn-block">
+                            <i class="fas fa-times"></i> Cancel Booking
+                        </a>
+                    {% elif booking.status == 'completed' %}
+                        <p class="text-success"><i class="fas fa-check-circle"></i> This booking has been completed.</p>
+                        {% if not booking.review %}
+                            <a href="#" class="btn btn-success btn-block">
+                                <i class="fas fa-star"></i> Leave a Review
+                            </a>
+                        {% endif %}
+                    {% elif booking.status == 'cancelled' %}
+                        <p class="text-danger"><i class="fas fa-times-circle"></i> This booking has been cancelled.</p>
+                        <a href="{% url 'booking:book_appointment' %}" class="btn btn-primary btn-block">
+                            <i class="fas fa-plus"></i> Book Again
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>Need Help?</h5>
+                </div>
+                <div class="card-body">
+                    <p><i class="fas fa-phone"></i> Call us: +1 234 567 8900</p>
+                    <p><i class="fas fa-envelope"></i> Email: info@barbershop.com</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

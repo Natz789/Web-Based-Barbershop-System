@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cancel Booking - Barbershop System{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 60px; margin-bottom: 60px;">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Cancel Booking</h5>
+                </div>
+                <div class="card-body" style="padding: 30px;">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-times-circle" style="font-size: 80px; color: var(--danger-color);"></i>
+                        <h4 class="mt-3">Are you sure you want to cancel this booking?</h4>
+                    </div>
+
+                    <div class="card mb-4" style="background-color: #f8f9fa;">
+                        <div class="card-body">
+                            <p><strong>Service:</strong> {{ booking.service.name }}</p>
+                            <p><strong>Date:</strong> {{ booking.booking_date|date:"F d, Y" }}</p>
+                            <p><strong>Time:</strong> {{ booking.booking_time|time:"g:i A" }}</p>
+                            <p class="mb-0"><strong>Barber:</strong>
+                                {% if booking.barber %}
+                                    {{ booking.barber.get_full_name }}
+                                {% else %}
+                                    Any Available
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{% url 'booking:booking_cancel' booking.id %}">
+                        {% csrf_token %}
+
+                        <div class="form-group mb-4">
+                            <label for="cancellation_reason" class="form-label">Reason for Cancellation (Optional)</label>
+                            <textarea name="cancellation_reason" id="cancellation_reason" class="form-control"
+                                      rows="3" placeholder="Please let us know why you're cancelling..."></textarea>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Note:</strong> Once cancelled, this booking cannot be recovered. You will need to create a new booking.
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-times"></i> Yes, Cancel Booking
+                            </button>
+                            <a href="{% url 'booking:booking_detail' booking.id %}" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-arrow-left"></i> No, Go Back
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

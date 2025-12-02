@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Book Appointment - Barbershop System{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 60px; margin-bottom: 60px;">
+    <div class="page-header">
+        <h1 class="page-title">Book an Appointment</h1>
+        <p class="page-subtitle">Schedule your next grooming session</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body" style="padding: 30px;">
+                    <form method="POST" action="{% url 'booking:book_appointment' %}">
+                        {% csrf_token %}
+
+                        <h5 class="mb-3">Personal Information</h5>
+
+                        <div class="form-group mb-3">
+                            <label for="customer_name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" name="customer_name" id="customer_name" class="form-control"
+                                   value="{{ user.get_full_name }}" placeholder="Enter your full name" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="customer_email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" name="customer_email" id="customer_email" class="form-control"
+                                           value="{{ user.email }}" placeholder="your.email@example.com" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="customer_phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                    <input type="tel" name="customer_phone" id="customer_phone" class="form-control"
+                                           value="{{ user.phone_number }}" placeholder="+1 234 567 8900" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-3">Appointment Details</h5>
+
+                        <div class="form-group mb-3">
+                            <label for="service" class="form-label">Service <span class="text-danger">*</span></label>
+                            <select name="service" id="service" class="form-select" required>
+                                <option value="">-- Select a Service --</option>
+                                {% for service in services %}
+                                    <option value="{{ service.id }}">{{ service.name }} - ${{ service.price }} ({{ service.duration_minutes }} min)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="barber" class="form-label">Preferred Barber</label>
+                            <select name="barber" id="barber" class="form-select">
+                                <option value="">-- Any Available Barber --</option>
+                                {% for barber in barbers %}
+                                    <option value="{{ barber.id }}">{{ barber.get_full_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text text-muted">Leave blank for any available barber</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="booking_date" class="form-label">Date <span class="text-danger">*</span></label>
+                                    <input type="date" name="booking_date" id="booking_date" class="form-control"
+                                           min="{{ today|date:'Y-m-d' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="booking_time" class="form-label">Time <span class="text-danger">*</span></label>
+                                    <input type="time" name="booking_time" id="booking_time" class="form-control"
+                                           min="09:00" max="18:00" required>
+                                    <small class="form-text text-muted">Business hours: 9:00 AM - 6:00 PM</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="notes" class="form-label">Additional Notes</label>
+                            <textarea name="notes" id="notes" class="form-control" rows="3"
+                                      placeholder="Any special requests or preferences..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-calendar-check"></i> Book Appointment
+                        </button>
+                        <a href="{% url 'booking:home' %}" class="btn btn-secondary btn-lg ms-2">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Booking Information</h5>
+                </div>
+                <div class="card-body">
+                    <h6><i class="fas fa-info-circle"></i> How to Book</h6>
+                    <ol style="padding-left: 20px; margin-top: 10px;">
+                        <li>Select your desired service</li>
+                        <li>Choose a barber (optional)</li>
+                        <li>Pick your preferred date and time</li>
+                        <li>Add any special requests</li>
+                        <li>Confirm your booking</li>
+                    </ol>
+
+                    <hr>
+
+                    <h6><i class="fas fa-clock"></i> Business Hours</h6>
+                    <p class="text-muted mb-1">Monday - Friday: 9:00 AM - 6:00 PM</p>
+                    <p class="text-muted mb-1">Saturday: 10:00 AM - 5:00 PM</p>
+                    <p class="text-muted">Sunday: Closed</p>
+
+                    <hr>
+
+                    <h6><i class="fas fa-question-circle"></i> Need Help?</h6>
+                    <p class="text-muted">Call us at +1 234 567 8900</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

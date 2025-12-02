@@ -127,3 +127,109 @@ def admin_dashboard(request):
     }
 
     return render(request, 'booking_management/admin_dashboard.html', context)
+
+
+@login_required
+def booking_detail(request, booking_id):
+    """View booking details"""
+    booking = get_object_or_404(Booking, id=booking_id)
+
+    # Check if user has permission to view this booking
+    try:
+        customer = Customer.objects.get(user=request.user)
+        if booking.customer != customer and not request.user.is_staff_member and not request.user.is_admin:
+            messages.error(request, 'You do not have permission to view this booking.')
+            return redirect('booking:my_bookings')
+    except Customer.DoesNotExist:
+        if not request.user.is_staff_member and not request.user.is_admin:
+            messages.error(request, 'You do not have permission to view this booking.')
+            return redirect('booking:home')
+
+    context = {
+        'booking': booking,
+    }
+
+    return render(request, 'booking_management/booking_detail.html', context)
+
+
+@login_required
+def booking_edit(request, booking_id):
+    """Edit booking"""
+    booking = get_object_or_404(Booking, id=booking_id)
+
+    # Check if user has permission to edit this booking
+    try:
+        customer = Customer.objects.get(user=request.user)
+        if booking.customer != customer and not request.user.is_staff_member and not request.user.is_admin:
+            messages.error(request, 'You do not have permission to edit this booking.')
+            return redirect('booking:my_bookings')
+    except Customer.DoesNotExist:
+        if not request.user.is_staff_member and not request.user.is_admin:
+            messages.error(request, 'You do not have permission to edit this booking.')
+            return redirect('booking:home')
+
+    # Check if booking can be edited
+    if booking.status not in ['pending', 'confirmed']:
+        messages.error(request, 'This booking cannot be edited.')
+        return redirect('booking:booking_detail', booking_id=booking.id)
+
+    if request.method == 'POST':
+        try:
+            booking.service_id = request.POST.get('service')
+            booking.barber_id = request.POST.get('barber') if request.POST.get('barber') else None
+            booking.booking_date = request.POST.get('booking_date')
+            booking.booking_time = request.POST.get('booking_time')
+            booking.notes = request.POST.get('notes', '')
+            booking.save()
+
+            messages.success(request, 'Booking updated successfully!')
+            return redirect('booking:booking_detail', booking_id=booking.id)
+        except Exception as e:
+            messages.error(request, f'Error updating booking: {str(e)}')
+
+    # Get services and barbers for form
+    services = Service.objects.filter(is_active=True)
+    from security_management.models import User
+    barbers = User.objects.filter(role='barber')
+
+    context = {
+        'booking': booking,
+        'services': services,
+        'barbers': barbers,
+    }
+
+    return render(request, 'booking_management/booking_edit.html', context)
+
+
+@login_required
+def booking_cancel(request, booking_id):
+    """Cancel booking"""
+    booking = get_object_or_404(Booking, id=booking_id)
+
+    # Check if user has permission to cancel this booking
+    try:
+        customer = Customer.objects.get(user=request.user)
+        if booking.customer != customer and not request.user.is_staff_member and not request.user.is_admin:
+            messages.error(request, 'You do not have permission to cancel this booking.')
+            return redirect('booking:my_bookings')
+    except Customer.DoesNotExist:
+        if not request.user.is_staff_member and not request.user.is_admin:
+            messages.error(request, 'You do not have permission to cancel this booking.')
+            return redirect('booking:home')
+
+    # Check if booking can be cancelled
+    if not booking.can_cancel:
+        messages.error(request, 'This booking cannot be cancelled.')
+        return redirect('booking:booking_detail', booking_id=booking.id)
+
+    if request.method == 'POST':
+        reason = request.POST.get('cancellation_reason', '')
+        booking.cancel(reason)
+        messages.success(request, 'Booking cancelled successfully.')
+        return redirect('booking:my_bookings')
+
+    context = {
+        'booking': booking,
+    }
+
+    return render(request, 'booking_management/booking_cancel.html', context)

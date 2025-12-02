@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Bookings - Barbershop System{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 60px; margin-bottom: 60px;">
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title">My Bookings</h1>
+                <p class="page-subtitle">View and manage your appointments</p>
+            </div>
+            <div>
+                <a href="{% url 'booking:book_appointment' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> New Booking
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if bookings %}
+        <div class="row g-4">
+            {% for booking in bookings %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card booking-card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Booking #{{ booking.id }}</h5>
+                                {% if booking.status == 'pending' %}
+                                    <span class="badge badge-warning">Pending</span>
+                                {% elif booking.status == 'confirmed' %}
+                                    <span class="badge badge-info">Confirmed</span>
+                                {% elif booking.status == 'completed' %}
+                                    <span class="badge badge-success">Completed</span>
+                                {% elif booking.status == 'cancelled' %}
+                                    <span class="badge badge-danger">Cancelled</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="booking-details">
+                                <p><strong><i class="fas fa-cut"></i> Service:</strong> {{ booking.service.name }}</p>
+                                <p><strong><i class="fas fa-calendar"></i> Date:</strong> {{ booking.booking_date|date:"F d, Y" }}</p>
+                                <p><strong><i class="fas fa-clock"></i> Time:</strong> {{ booking.booking_time|time:"g:i A" }}</p>
+                                <p><strong><i class="fas fa-user"></i> Barber:</strong>
+                                    {% if booking.barber %}
+                                        {{ booking.barber.get_full_name }}
+                                    {% else %}
+                                        Any Available
+                                    {% endif %}
+                                </p>
+                                {% if booking.notes %}
+                                    <p><strong><i class="fas fa-sticky-note"></i> Notes:</strong> {{ booking.notes }}</p>
+                                {% endif %}
+                            </div>
+
+                            <div class="mt-3" style="display: flex; gap: 8px;">
+                                <a href="{% url 'booking:booking_detail' booking.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                                    <a href="{% url 'booking:booking_edit' booking.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <a href="{% url 'booking:booking_cancel' booking.id %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center" style="padding: 80px 0;">
+            <i class="fas fa-calendar-times" style="font-size: 80px; color: var(--muted-color); margin-bottom: 20px;"></i>
+            <h3>No Bookings Found</h3>
+            <p class="text-muted">You haven't made any appointments yet.</p>
+            <a href="{% url 'booking:book_appointment' %}" class="btn btn-primary btn-lg mt-3">
+                <i class="fas fa-plus"></i> Book Your First Appointment
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
